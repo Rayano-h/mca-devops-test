@@ -1,0 +1,51 @@
+# Service (Pour le Front)
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+spec:
+  ports:
+    - port: 8080 # le service
+      targetPort: 8080 # conteneur Java
+  selector:
+    app: backend
+
+---
+# L'Appli Java
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: mca-backend:1.0
+          imagePullPolicy: Never 
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_POSTGRES_URL
+              value: "jdbc:postgresql://postgres-db:5432/myapplication"
+            - name: SPRING_POSTGRES_USERNAME
+              value: "myapplication"
+            - name: SPRING_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: postgres-password

@@ -1,0 +1,14 @@
+FROM node:20-alpine AS builder
+WORKDIR /app
+# Dépendances
+COPY package.json .
+COPY npm-shrinkwrap.json .
+RUN npm install
+COPY . .
+
+# force le dossier de sortie vers "dist/out" pour avoir le nom du projet
+RUN npm run build -- --output-path=./dist/out
+FROM nginx:alpine
+RUN rm -rf /usr/share/nginx/html/*
+COPY --from=builder /app/dist/out/browser /usr/share/nginx/html
+EXPOSE 80

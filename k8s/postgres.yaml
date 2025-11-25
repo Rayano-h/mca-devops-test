@@ -1,0 +1,55 @@
+# Secret 
+# Je le stocke ici pour pas le mettre en clair dans le Deploy
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secret
+type: Opaque
+stringData:
+  # MDP du Tp
+  postgres-password: "M3P@ssw0rd!"
+
+---
+# Service 
+# Pour que le Back trouve la DB
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-db
+spec:
+  ports:
+    - port: 5432
+  selector:
+    app: postgres
+
+---
+# Deploy (L'appli)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: "myapplication" # Nom de la DB du tp 
+            - name: POSTGRES_USER
+              value: "myapplication" # User du tp 
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: postgres-password

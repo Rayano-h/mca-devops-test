@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mca-ingress
+  annotations:
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          # Tout ce qui commence par /api va vers le BACK
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: backend
+                port:
+                  number: 8080
+          
+          # Le reste / vers le FRONT
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 80
