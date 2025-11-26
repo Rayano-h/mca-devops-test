@@ -49,3 +49,5 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: postgres-password
+            - name: SERVER_TOMCAT_THREADS_MAX
+              value: "50"
